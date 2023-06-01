@@ -3,6 +3,7 @@ import pygame
 from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS
 from dino_runner.components.dinosaur import Dinosaur
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
+from dino_runner.components.clouds import Clouds
 
 FONT_STYLE = "freesansbold.ttf"
 
@@ -22,6 +23,12 @@ class Game:
         self.score = 0
         self.death_count = 0
 
+        self.clouds = {
+            'cloud1': Clouds((SCREEN_WIDTH + 300), 200),
+            'cloud2': Clouds((SCREEN_WIDTH + 600), 240),
+            'cloud3': Clouds((SCREEN_WIDTH + 900), 180),
+            'cloud4': Clouds((SCREEN_WIDTH + 1200), 50)
+        }
         self.player = Dinosaur()
         self.obstacle_manager = ObstacleManager()
 
@@ -33,6 +40,13 @@ class Game:
 
         pygame.display.quit()
         pygame.quit()    
+
+    def reset_game(self):
+        self.game_speed = 20
+        self.score = 0
+        self.death_count = 0
+        self.execute()
+
 
     def run(self):
         self.playing = True
@@ -52,19 +66,28 @@ class Game:
         self.player.update(user_input)
         self.obstacle_manager.update(self)
         self.update_score()
+        for cloud in self.clouds.values():
+            cloud.update()
+        self.clouds.update()
 
     def update_score(self):
         self.score += 1
         if self.score % 100 == 0:
             self.game_speed += 5
+            for cloud in self.clouds.values():
+                cloud.clouds_speed += 0.25
+
+
 
     def draw(self):
         self.clock.tick(FPS)
         self.screen.fill((255, 255, 255))
         self.draw_background()
+        for cloud in self.clouds.values():
+            cloud.draw(self.screen)
+        self.draw_score()
         self.player.draw(self.screen)
         self.obstacle_manager.draw(self.screen)
-        self.draw_score()
         pygame.display.update()
         pygame.display.flip()
 
@@ -77,13 +100,6 @@ class Game:
             self.x_pos_bg = 0
         self.x_pos_bg -= self.game_speed
 
-    def draw_score(self):
-        font = pygame.font.Font(FONT_STYLE, 22)
-        text = font.render(f"Score: {self.score}", True, (0, 0, 0))
-        text_rect = text.get_rect()
-        text_rect.center = (1000, 50)
-        self.screen.blit(text, text_rect)
-
     def handle_events_on_menu(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -92,25 +108,39 @@ class Game:
             elif event.type == pygame.KEYDOWN:
                 self.run()
 
+    def draw_text(self, text, size, color, position):
+        font = pygame.font.Font(FONT_STYLE, size)
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect()
+        text_rect.center = position
+        self.screen.blit(text_surface, text_rect)
+
+    def draw_score(self):
+        score_text = f"Score: {self.score}"
+        self.draw_text(score_text, 22, (0, 0, 0), (1000, 50))
+
     def show_menu(self):
         self.screen.fill((255, 255, 255))
         half_screen_height = SCREEN_HEIGHT // 2
         half_screen_width = SCREEN_WIDTH // 2
 
         if self.death_count == 0:
-            font = pygame.font.Font(FONT_STYLE, 22)
-            text = font.render("Press any key to start", True, (0, 0, 0))
-            text_rect = text.get_rect()
-            text_rect.center = (half_screen_width, half_screen_height)
-            self.screen.blit(text, text_rect)
-        else:
-            self.screen.blit(ICON, (half_screen_width - 20, half_screen_height - 140))
-            # MOSTRAR MENSAGEM "Press any key to restart"
-            # MOSTRAR score ATINGIDO
-            # MOSTRAR death_count
+            self.draw_text("Press any key to start", 22, (0, 0, 0), (half_screen_width, half_screen_height))
+        elif self.death_count >= 1 and self.death_count < 4:
+            self.screen.blit(ICON, (half_screen_width - 35, half_screen_height - 140))
+            text_list = [
+                ("Press any key to restart", (half_screen_width, half_screen_height)),
+                (f"Score: {self.score}", (1000, 50)),
+                (f"Deaths: {self.death_count}", (100, 50))
+            ]
+            for text, position in text_list:
+                self.draw_text(text, 22, (0, 0, 0), position)
+        elif self.death_count >= 3:
+            self.reset_game()
 
-            ## Resetar score e game_speed quando uma partida for recomeçada
-            ## Criar método para remover repetição de código do texto
 
-        pygame.display.update()  # ou .flip()
+        pygame.display.update()
         self.handle_events_on_menu()
+
+
+        

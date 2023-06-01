@@ -10,7 +10,7 @@ class Bird(Obstacle):
         self.image_index = 0
         self.animation_speed = 5
         self.animation_counter = 0
-        self.rect.y = random.randrange(100, 285, 10)
+        self.rect.y = random.randrange(200, 330, 10)
         self.direction = 1 
         self.speed = 5
 
@@ -22,9 +22,9 @@ class Bird(Obstacle):
             self.animation_counter = 0
 
         self.rect.y += self.speed * self.direction
-        if self.rect.top <= 100:
+        if self.rect.top <= 190:
             self.direction = 1
-        elif self.rect.bottom >= 285:
+        elif self.rect.bottom >= 315:
             self.direction = -1
 
         super().update(game_speed, obstacles)
