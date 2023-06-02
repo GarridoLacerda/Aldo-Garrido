@@ -1,11 +1,10 @@
 import pygame
 
-from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS
+from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, DEFAULT_TYPE, FONT_STYLE, TEXT_POSITION
 from dino_runner.components.dinosaur import Dinosaur
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
+from dino_runner.components.power_ups.power_up_manager import PowerUpManager
 from dino_runner.components.clouds import Clouds
-
-FONT_STYLE = "freesansbold.ttf"
 
 
 class Game:
@@ -31,6 +30,7 @@ class Game:
         }
         self.player = Dinosaur()
         self.obstacle_manager = ObstacleManager()
+        self.power_up_manager = PowerUpManager()
 
     def execute(self):
         self.running = True
@@ -47,10 +47,10 @@ class Game:
         self.death_count = 0
         self.execute()
 
-
     def run(self):
         self.playing = True
         self.obstacle_manager.reset_obstacles()
+        self.power_up_manager.reset_power_ups()
         while self.playing:
             self.events()
             self.update()
@@ -66,6 +66,7 @@ class Game:
         self.player.update(user_input)
         self.obstacle_manager.update(self)
         self.update_score()
+        self.power_up_manager.update(self)
         for cloud in self.clouds.values():
             cloud.update()
         self.clouds.update()
@@ -77,8 +78,6 @@ class Game:
             for cloud in self.clouds.values():
                 cloud.clouds_speed += 0.25
 
-
-
     def draw(self):
         self.clock.tick(FPS)
         self.screen.fill((255, 255, 255))
@@ -86,10 +85,26 @@ class Game:
         for cloud in self.clouds.values():
             cloud.draw(self.screen)
         self.draw_score()
+        self.draw_power_up_time()
+        self.power_up_manager.draw(self.screen)
         self.player.draw(self.screen)
         self.obstacle_manager.draw(self.screen)
         pygame.display.update()
         pygame.display.flip()
+
+    def draw_power_up_time(self):
+        if self.player.has_power_up:
+            time_to_show = round((self.player.power_up_time - pygame.time.get_ticks()) / 1000, 2)
+            if time_to_show >= 0:
+                self.draw_text(
+                f"{self.player.type.capitalize()} enabled for {time_to_show} seconds",
+                18,
+                (255, 0, 0),
+                TEXT_POSITION
+                )
+            else:
+                self.player.has_power_up = False
+                self.player.type = DEFAULT_TYPE
 
     def draw_background(self):
         image_width = BG.get_width()
