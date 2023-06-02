@@ -1,20 +1,21 @@
-from dino_runner.utils.constants import LIFE_BAR
+from dino_runner.utils.constants import HEART
 
 class LifeBar():
     def __init__(self):
-        self.life_images = LIFE_BAR
-        self.current_life_index = 0
+        self.life_image = HEART 
 
     def draw(self, screen):
-        current_life_image = self.life_images[self.current_life_index]
-        screen.blit(current_life_image, (25, 20)) 
+        for i in range(self.attempts):
+            x = 25 + i * (self.life_image.get_width() + 10)
+            y = 20  
+            screen.blit(self.life_image, (x, y))
 
     def update(self, game):
         if game.attempts == 3:
-            self.current_life_index = 0
+            self.attempts = 3
         elif game.attempts == 2:
-            self.current_life_index = 1
+            self.attempts = 2
         elif game.attempts == 1:
-            self.current_life_index = 2
+            self.attempts = 1
         else:
-            self.current_life_index = 2
+            self.attempts = 0

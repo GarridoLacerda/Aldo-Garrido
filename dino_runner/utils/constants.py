@@ -81,12 +81,6 @@ CLOUD = pygame.image.load(os.path.join(IMG_DIR, 'Other/Cloud.png'))
 SHIELD = pygame.image.load(os.path.join(IMG_DIR, 'Other/shield.png'))
 HAMMER = pygame.image.load(os.path.join(IMG_DIR, 'Other/hammer.png'))
 SCORE_CAKE = pygame.image.load(os.path.join(IMG_DIR, 'Other/ScoreCake.png'))
-LIFE_BAR = [
-    pygame.image.load(os.path.join(IMG_DIR, "Other/LifeBar1.png")),
-    pygame.image.load(os.path.join(IMG_DIR, "Other/LifeBar2.png")),
-    pygame.image.load(os.path.join(IMG_DIR, "Other/LifeBar3.png")),
-]
-
 
 BG = pygame.image.load(os.path.join(IMG_DIR, 'Other/Track.png'))
 
@@ -95,6 +89,6 @@ HEART = pygame.image.load(os.path.join(IMG_DIR, 'Other/SmallHeart.png'))
 DEFAULT_TYPE = "default"
 SHIELD_TYPE = "shield"
 HAMMER_TYPE = "hammer"
-SCORE_TYPE = "score"
+SCORE_TYPE = "score 2x"
 
 FONT_STYLE = "freesansbold.ttf"
