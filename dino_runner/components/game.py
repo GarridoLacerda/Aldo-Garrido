@@ -1,10 +1,11 @@
 import pygame
 
-from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, DEFAULT_TYPE, FONT_STYLE, TEXT_POSITION
+from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, DEFAULT_TYPE, FONT_STYLE
 from dino_runner.components.dinosaur import Dinosaur
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
 from dino_runner.components.power_ups.power_up_manager import PowerUpManager
 from dino_runner.components.clouds import Clouds
+from dino_runner.components.HP import LifeBar
 
 
 class Game:
@@ -21,6 +22,7 @@ class Game:
         self.y_pos_bg = 380
         self.score = 0
         self.death_count = 0
+        self.attempts = 3
 
         self.clouds = {
             'cloud1': Clouds((SCREEN_WIDTH + 300), 200),
@@ -31,6 +33,7 @@ class Game:
         self.player = Dinosaur()
         self.obstacle_manager = ObstacleManager()
         self.power_up_manager = PowerUpManager()
+        self.life_bar = LifeBar()
 
     def execute(self):
         self.running = True
@@ -42,6 +45,7 @@ class Game:
         pygame.quit()    
 
     def reset_game(self):
+        self.attempts = 3
         self.game_speed = 20
         self.score = 0
         self.death_count = 0
@@ -70,9 +74,14 @@ class Game:
         for cloud in self.clouds.values():
             cloud.update()
         self.clouds.update()
+        self.life_bar.update(self)
 
     def update_score(self):
-        self.score += 1
+        if self.player.multi_score == True and self.player.has_power_up == True:
+            self.score += 5
+            self.game_speed - 10
+        else:
+            self.score += 1
         if self.score % 100 == 0:
             self.game_speed += 5
             for cloud in self.clouds.values():
@@ -89,6 +98,7 @@ class Game:
         self.power_up_manager.draw(self.screen)
         self.player.draw(self.screen)
         self.obstacle_manager.draw(self.screen)
+        self.life_bar.draw(self.screen)
         pygame.display.update()
         pygame.display.flip()
 
@@ -100,7 +110,7 @@ class Game:
                 f"{self.player.type.capitalize()} enabled for {time_to_show} seconds",
                 18,
                 (255, 0, 0),
-                TEXT_POSITION
+                (500, 40)
                 )
             else:
                 self.player.has_power_up = False
@@ -139,18 +149,19 @@ class Game:
         half_screen_height = SCREEN_HEIGHT // 2
         half_screen_width = SCREEN_WIDTH // 2
 
-        if self.death_count == 0:
+        if self.attempts == 3:
             self.draw_text("Press any key to start", 22, (0, 0, 0), (half_screen_width, half_screen_height))
-        elif self.death_count >= 1 and self.death_count < 4:
+        elif self.attempts < 3 and self.attempts >= 1:
             self.screen.blit(ICON, (half_screen_width - 35, half_screen_height - 140))
             text_list = [
-                ("Press any key to restart", (half_screen_width, half_screen_height)),
+                ("Press any key to continue", (half_screen_width, half_screen_height)),
                 (f"Score: {self.score}", (1000, 50)),
-                (f"Deaths: {self.death_count}", (100, 50))
+                (f"Deaths: {self.death_count}", (100, 50)),
+                (f"Remaining attempts: {self.attempts}", (171, 100))
             ]
             for text, position in text_list:
                 self.draw_text(text, 22, (0, 0, 0), position)
-        elif self.death_count >= 3:
+        elif self.attempts <= 0:
             self.reset_game()
 
 

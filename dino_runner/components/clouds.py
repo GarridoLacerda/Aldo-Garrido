@@ -1,13 +1,14 @@
 import random
 from dino_runner.utils.constants import CLOUD, SCREEN_WIDTH
 
+
 class Clouds:
     def __init__(self, x, y):
         self.image = CLOUD
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.clouds_speed = 2
+        self.clouds_speed = 3
 
     def update(self):
         if self.rect.topright[0] < 0:

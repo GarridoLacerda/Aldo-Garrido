@@ -31,9 +31,15 @@ class ObstacleManager:
                     pygame.time.delay(500)
                     game.playing = False
                     game.death_count += 1
+                    game.attempts -= 1
                     break
-                else:
+                elif game.player.hammer:
                     self.obstacles.remove(obstacle)
+                elif game.player.shield:
+                    continue
+                elif game.player.multi_score: 
+                    game.player.has_power_up = False
+
 
     def draw(self, screen):
         for obstacle in self.obstacles:
